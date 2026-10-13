@@ -1,6 +1,6 @@
 # Dubai Real Estate Analytics
 
-End-to-end analytics project analyzing **1M+ real estate transactions** from the Dubai Land Department (2020–2023). Covers the full analyst workflow — from data cleaning to SQL analysis to interactive Power BI dashboards, with an AI-assisted analysis methodology.
+End-to-end analytics project working with **1M+ raw real estate transactions** from the Dubai Land Department. After profiling and cleaning, filtered to **286K recent transactions (2020–2023)** for in-depth analysis.
 
 ## 📊 Power BI Dashboard
 
