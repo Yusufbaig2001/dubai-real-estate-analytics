@@ -46,7 +46,7 @@ Dubai's real estate market generates billions in transactions every year. Invest
 
 ## 🗄️ Dataset
 
-**Source:** Dubai Land Department transactions, via Kaggle ([ADD KAGGLE LINK HERE])
+**Source:** Dubai Land Department transactions, via Kaggle (https://www.kaggle.com/datasets/alexefimik/dubai-real-estate-transactions-dataset)
 
 | Metric | Value |
 | --- | --- |
