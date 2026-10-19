@@ -1,18 +1,19 @@
 # Dubai Real Estate Analytics
 
-End-to-end analytics project working with **1M+ raw real estate transactions** from the Dubai Land Department. After profiling and cleaning, filtered to **286K recent transactions (2020–2023)** for in-depth analysis.
+End-to-end analysis of **1M+ raw Dubai Land Department transactions**, cleaned and filtered to **286K recent transactions (2020–2023)**. The project covers data profiling and cleaning in Python, 20 SQL analysis queries in MySQL, and a 4-page Power BI dashboard with recommendations.
+
+**Headline findings:** properties with parking sell at a **52% higher price per sqm**, **53%** of transactions fall in the AED 500K–2M range, and **72%** of transactions are apartments.
 
 ## 📊 Power BI Dashboard
 
 ![Market Overview](PowerBI/screenshots/page1_market_overview.png)
 
-A 4-page interactive dashboard built on 286K cleaned transactions.
+A 4-page interactive dashboard built on 286K cleaned transactions:
 
-**Pages:**
-- **Market Overview** — KPIs, quarterly trends, property type distribution
-- **Area Analysis** — Treemap + top areas by price per sqm
-- **Property Analysis** — Type, sub-type, room distribution, parking impact
-- **Executive Summary** — Key findings + recommendations + AI workflow
+- **Market Overview**: KPIs, quarterly trends, property type distribution
+- **Area Analysis**: treemap and top areas by price per sqm
+- **Property Analysis**: type, sub-type, room distribution and parking impact
+- **Executive Summary**: key findings and recommendations
 
 📂 [View all dashboard screenshots →](PowerBI/screenshots/)
 
@@ -20,109 +21,107 @@ A 4-page interactive dashboard built on 286K cleaned transactions.
 
 ## 📋 Business Problem
 
-Dubai's real estate market generates billions in transactions annually. Investors, developers, and analysts need to understand:
+Dubai's real estate market generates billions in transactions every year. Investors, developers and analysts need to know:
+
 - **Where** the highest-value transactions happen
 - **What** property types dominate the market
-- **How** features (parking, location, size) impact pricing
+- **How** features such as parking, location and size affect price
 - **When** the market peaks and slows
-
-This project delivers data-driven answers to these questions.
 
 ## 🎯 Objectives
 
 - Clean and prepare 1M+ raw transaction records
-- Analyze pricing patterns across areas, property types, and time
+- Analyse pricing patterns across areas, property types and time
 - Build a 4-page executive dashboard with actionable insights
-- Document an AI-assisted analysis workflow
+- Turn the findings into clear business recommendations
 
-## 🛠️ Tools & Technologies
+## 🛠️ Tools and Technologies
 
 | Tool | Purpose |
-|------|---------|
-| **Python (Pandas)** | Data profiling, cleaning, feature engineering |
-| **MySQL** | Data storage, 20+ business analysis queries |
-| **Power BI** | Interactive 4-page executive dashboard |
+| --- | --- |
+| **Python (Pandas)** | Data profiling, cleaning, derived columns |
+| **MySQL** | Data storage and 20 business analysis queries |
+| **Power BI** | Interactive 4-page dashboard |
 | **DAX** | Calculated measures (formatted KPIs, time intelligence) |
-| **AI Tools (ChatGPT, Claude)** | Query debugging, insight generation, DAX review |
 
 ## 🗄️ Dataset
 
-**Source:** Dubai Land Department (via Kaggle)
+**Source:** Dubai Land Department transactions, via Kaggle ([ADD KAGGLE LINK HERE])
 
 | Metric | Value |
-|--------|-------|
+| --- | --- |
 | Raw records | 1,047,965 |
 | Raw columns | 46 |
 | Cleaned records | 286,303 |
 | Cleaned columns | 34 |
 | Date range | 2020–2023 |
 
-## 🔍 Methodology
+## 🧹 Data Cleaning
 
-### Phase 1: Data Profiling
-- Loaded 1M+ rows into Python
-- Identified 46 columns with mixed Arabic/English duplicates
-- Documented missing values, data types, and anomalies
+| Problem | What I did |
+| --- | --- |
+| Mixed Arabic and English duplicate columns | Dropped 12 duplicate Arabic columns |
+| Near-empty columns (96%+ NULL) | Removed 2 columns |
+| Dates stored as text | Converted to datetime |
+| Too much old data for a recent-market analysis | Filtered to 2020–2023 (286K records kept) |
+| No price per sqm or time fields | Created `year`, `month`, `quarter` and `price_per_sqm` |
 
-### Phase 2: Data Cleaning
-- Dropped 12 duplicate Arabic columns
-- Removed 2 near-empty columns (96%+ NULL)
-- Converted date strings to datetime
-- Filtered to 2020–2023 (kept 286K recent records)
-- Created derived columns: `year`, `month`, `quarter`, `price_per_sqm`
+Notebooks: `01_data_profiling.ipynb` and `02_data_cleaning.ipynb`
 
-### Phase 3: SQL Analysis (20 queries)
-Covered: market overview, area analysis, property segmentation, time trends, window functions, median calculations.
+## 🔍 SQL Analysis (20 queries)
 
-### Phase 4: Power BI Dashboard
-4 pages with KPIs, trend charts, treemaps, tables, and executive summary.
-
-### Phase 5: AI-Assisted Workflow
-Documented use of AI tools at each phase (see section below).
+Covers market overview, area analysis, property segmentation, time trends, window functions and median calculations. See `analysis_queries.sql`.
 
 ## 📊 Key Insights
 
-- **AED 517.87 billion** in total sales across 217K transactions (2020–2023)
-- **Units dominate**: 72% of transactions are apartments
-- **Parking premium**: Properties with parking command **52% higher** price/sqm (AED 16.36K vs 10.72K)
-- **Mid-tier is largest segment**: 53% of transactions fall in AED 500K–2M
-- **Premium areas lead revenue**: Marsa Dubai, Palm Jumeirah, Burj Khalifa
-- **Al Buteen** has the highest average price/sqm at AED 85K
+- **AED 517.87 billion** in total sales across **217K sales transactions** (the 286K cleaned records also include other transaction types)
+- **Units dominate:** 72% of transactions are apartments
+- **Parking premium:** properties with parking sell at **52% higher** price per sqm (AED 16.36K vs 10.72K)
+- **Mid-tier is the largest segment:** 53% of transactions fall in AED 500K–2M
+- **Premium areas lead revenue:** Marsa Dubai, Palm Jumeirah, Burj Khalifa
+- **Al Buteen** has the highest average price per sqm at AED 85K
 - **1 BHK** is the most in-demand room type
 
 ## 💡 Recommendations
 
-1. **Target mid-tier buyers** — 53% of transactions are AED 500K–2M
-2. **Highlight parking** — +52% price premium
-3. **Expand in high-yield areas** — Marsa Dubai, Palm Jumeirah
-4. **Prioritize apartment inventory** — 72% of demand
-5. **Build more 1 BHK supply** — highest transaction volume
+1. **Target mid-tier buyers:** 53% of transactions are AED 500K–2M
+2. **Highlight parking:** properties with parking show a 52% price premium
+3. **Focus on high-value areas:** Marsa Dubai and Palm Jumeirah lead revenue
+4. **Prioritise apartment inventory:** apartments are 72% of transactions
+5. **Build more 1 BHK supply:** it has the highest transaction volume
+
+## ⚠️ Limitations
+
+- Results describe recorded transactions from 2020–2023, not current prices.
+- The parking premium is a direct comparison of averages. It is not adjusted for area, size or property type, so part of the gap may come from those factors.
+- The data has sale prices only, so it cannot measure rental yield.
 
 ## 🤖 AI-Assisted Workflow
 
-This project used AI tools (ChatGPT, Claude) as productivity accelerators:
-
-- **SQL Development** — Used AI to debug complex window functions and validate query logic
-- **Insight Generation** — Used AI to brainstorm business implications from SQL findings
-- **Data Validation** — Cross-checked AI suggestions against raw data (caught 8+ logic errors)
-- **DAX Review** — AI reviewed Power BI measures for edge cases and formatting
-
-**Key Principle: AI accelerates; I validate.** Every AI suggestion was tested against business logic and corrected where needed.
+I used ChatGPT and Claude to debug SQL window functions, brainstorm business implications and review DAX measures. I checked every suggestion against the data and business logic, and corrected 8+ logic errors.
 
 ## 📁 Repository Structure
-dubai-real-estate-analytics/
-├── SQL/
-│ └── analysis_queries.sql # 20 business analysis queries
-├── PowerBI/
-│ └── screenshots/ # Dashboard screenshots (4 pages)
-├── 01_data_profiling.ipynb # Python data profiling
-├── 02_data_cleaning.ipynb # Python data cleaning
-└── README.md
 
+```
+dubai-real-estate-analytics/
+├── 01_data_profiling.ipynb   # Python data profiling
+├── 02_data_cleaning.ipynb    # Python data cleaning
+├── analysis_queries.sql      # 20 business analysis queries
+├── PowerBI/
+│   └── screenshots/          # Dashboard screenshots (4 pages)
+└── README.md
+```
+
+## 🚀 How to Run
+
+1. Download the dataset from the Kaggle link above.
+2. Run the two notebooks in order to profile and clean the data.
+3. Load the cleaned data into MySQL.
+4. Run `analysis_queries.sql`.
 
 ## 👤 Author
 
-**Yusuf Baig** — Data Analyst | SQL · Power BI · Excel · Python | Open to roles in Dubai, UAE
+**Yusuf Baig**, Data Analyst | SQL · Power BI · Python | Open to roles in Dubai, UAE
 
 - LinkedIn: [linkedin.com/in/yusuf-baig-783906210](https://www.linkedin.com/in/yusuf-baig-783906210/)
 - GitHub: [@Yusufbaig2001](https://github.com/Yusufbaig2001)
