@@ -79,7 +79,6 @@ Covers market overview, area analysis, property segmentation, time trends, windo
 - **Parking premium:** properties with parking sell at **52% higher** price per sqm (AED 16.36K vs 10.72K)
 - **Mid-tier is the largest segment:** 53% of transactions fall in AED 500K–2M
 - **Premium areas lead revenue:** Marsa Dubai, Palm Jumeirah, Burj Khalifa
-- **Al Buteen** has the highest average price per sqm at AED 85K
 - **1 BHK** is the most in-demand room type
 
 ## 💡 Recommendations
@@ -104,11 +103,11 @@ I used ChatGPT and Claude to debug SQL window functions, brainstorm business imp
 
 ```
 dubai-real-estate-analytics/
-├── 01_data_profiling.ipynb   # Python data profiling
-├── 02_data_cleaning.ipynb    # Python data cleaning
-├── analysis_queries.sql      # 20 business analysis queries
 ├── PowerBI/
-│   └── screenshots/          # Dashboard screenshots (4 pages)
+│   └── screenshots/             # Dashboard screenshots (4 pages)
+├── 01_data_profiling.ipynb      # Python data profiling
+├── 02_data_cleaning.ipynb       # Python data cleaning
+├── analysis_queries.sql         # 20 business analysis queries
 └── README.md
 ```
 
