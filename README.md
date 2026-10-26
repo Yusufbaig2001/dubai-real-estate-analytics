@@ -2,7 +2,7 @@
 
 End-to-end analysis of **1M+ raw Dubai Land Department transactions**, cleaned and filtered to **286K recent transactions (2020–2023)**. The project covers data profiling and cleaning in Python, 20 SQL analysis queries in MySQL, and a 4-page Power BI dashboard with recommendations.
 
-**Headline findings:** properties with parking sell at a **52% higher price per sqm**, **53%** of transactions fall in the AED 500K–2M range, and **72%** of transactions are apartments.
+**Headline findings:** properties with parking sell at a **52% higher price per sqm** (unadjusted), **53%** of transactions fall in the AED 500K–2M range, and **72%** of transactions are apartments.
 
 ## 📊 Power BI Dashboard
 
@@ -72,11 +72,11 @@ Notebooks: `01_data_profiling.ipynb` and `02_data_cleaning.ipynb`
 
 Covers market overview, area analysis, property segmentation, time trends, window functions and median calculations. See `analysis_queries.sql`.
 
-## 📊 Key Insights
+## 🔑 Key Insights
 
 - **AED 517.87 billion** in total sales across **217K sales transactions** (the 286K cleaned records also include other transaction types)
 - **Units dominate:** 72% of transactions are apartments
-- **Parking premium:** properties with parking sell at **52% higher** price per sqm (AED 16.36K vs 10.72K)
+- **Parking premium:** properties with parking sell at **52% higher** price per sqm (AED 16.36K vs 10.72K), before adjusting for area or size
 - **Mid-tier is the largest segment:** 53% of transactions fall in AED 500K–2M
 - **Premium areas lead revenue:** Marsa Dubai, Palm Jumeirah, Burj Khalifa
 - **1 BHK** is the most in-demand room type
@@ -84,7 +84,7 @@ Covers market overview, area analysis, property segmentation, time trends, windo
 ## 💡 Recommendations
 
 1. **Target mid-tier buyers:** 53% of transactions are AED 500K–2M
-2. **Highlight parking:** properties with parking show a 52% price premium
+2. **Highlight parking in listings:** properties with parking show a 52% premium, though this should be checked against area and size before quoting it to clients
 3. **Focus on high-value areas:** Marsa Dubai and Palm Jumeirah lead revenue
 4. **Prioritise apartment inventory:** apartments are 72% of transactions
 5. **Build more 1 BHK supply:** it has the highest transaction volume
@@ -94,6 +94,12 @@ Covers market overview, area analysis, property segmentation, time trends, windo
 - Results describe recorded transactions from 2020–2023, not current prices.
 - The parking premium is a direct comparison of averages. It is not adjusted for area, size or property type, so part of the gap may come from those factors.
 - The data has sale prices only, so it cannot measure rental yield.
+
+## 🔭 Next Steps
+
+- Compare parking premiums within the same area and size band to separate the parking effect from location and size.
+- Add more recent transactions to check whether the 2020–2023 patterns still hold.
+- Combine with rental data to estimate yield by area.
 
 ## 🤖 AI-Assisted Workflow
 
