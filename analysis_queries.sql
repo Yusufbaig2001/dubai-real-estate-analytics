@@ -1,260 +1,350 @@
-create database dubai_realestate;
--- ============================================
--- Dubai Real Estate Analytics
--- SQL Analysis Queries
--- Author: Yusuf Baig
--- Database: dubai_realestate
--- ============================================
-
+CREATE DATABASE IF NOT EXISTS dubai_realestate;
 USE dubai_realestate;
 
--- ============================================
--- SECTION 1: MARKET OVERVIEW
--- ============================================
+-- =========================================================
+-- DUBAI REAL ESTATE ANALYTICS
+-- AI-assisted SQL analysis | MySQL
+-- Dataset: Dubai Land Department transactions, 2020-2024
+-- Cleaned dataset: 286,303 rows, 34 columns
+-- =========================================================
 
--- Q1: Overall Market Snapshot (2024 Sales)
-SELECT COUNT(transaction_id) AS total_transactions, 
-       SUM(actual_worth) AS total_sales_value, 
-       AVG(actual_worth) AS avg_sale_price
+
+-- =========================================================
+-- SECTION 1: DATA VALIDATION
+-- =========================================================
+
+-- Q1: Check total records and date range
+SELECT
+    COUNT(*) AS total_records,
+    MIN(instance_date) AS first_transaction_date,
+    MAX(instance_date) AS last_transaction_date,
+    COUNT(DISTINCT transaction_id) AS unique_transactions
+FROM transactions;
+
+
+-- Q2: Check for duplicate transaction IDs
+SELECT
+    transaction_id,
+    COUNT(*) AS duplicate_count
 FROM transactions
-WHERE trans_group_en = 'Sales' AND year = 2024;
+GROUP BY transaction_id
+HAVING COUNT(*) > 1
+ORDER BY duplicate_count DESC;
 
--- Q2: Top 10 Areas by Transaction Volume
-SELECT area_name_en, COUNT(transaction_id) AS transaction_count
+
+-- Q3: Check missing values in important analytical columns
+SELECT
+    COUNT(*) AS total_records,
+    SUM(actual_worth IS NULL) AS missing_actual_worth,
+    SUM(price_per_sqm IS NULL) AS missing_price_per_sqm,
+    SUM(area_name_en IS NULL OR TRIM(area_name_en) = '') AS missing_area,
+    SUM(property_type_en IS NULL OR TRIM(property_type_en) = '') AS missing_property_type,
+    SUM(instance_date IS NULL) AS missing_transaction_date
+FROM transactions;
+
+
+-- =========================================================
+-- SECTION 2: MARKET OVERVIEW
+-- =========================================================
+
+-- Q4: Overall sales market snapshot (2020-2024)
+SELECT
+    COUNT(*) AS total_sales_transactions,
+    ROUND(SUM(actual_worth), 2) AS total_sales_value_aed,
+    ROUND(AVG(actual_worth), 2) AS average_sale_price_aed,
+    ROUND(AVG(price_per_sqm), 2) AS average_price_per_sqm
+FROM transactions
+WHERE trans_group_en = 'Sales'
+  AND actual_worth > 0;
+
+
+-- Q5: Top 10 areas by transaction volume
+SELECT
+    area_name_en,
+    COUNT(*) AS transaction_count
 FROM transactions
 WHERE trans_group_en = 'Sales'
 GROUP BY area_name_en
 ORDER BY transaction_count DESC
 LIMIT 10;
 
--- Q3: Average Price per SQM by Property Type
-SELECT property_type_en, 
-       AVG(meter_sale_price) AS avg_price_per_sqm, 
-       COUNT(transaction_id) AS transaction_count
+
+-- Q6: Average price per square metre by property type
+SELECT
+    property_type_en,
+    ROUND(AVG(price_per_sqm), 2) AS avg_price_per_sqm,
+    COUNT(*) AS transaction_count
 FROM transactions
 WHERE trans_group_en = 'Sales'
+  AND price_per_sqm > 0
 GROUP BY property_type_en
 ORDER BY avg_price_per_sqm DESC;
 
--- Q4: Monthly Transaction Trend (2024)
-SELECT DATE_FORMAT(instance_date, '%Y-%m') AS month, 
-       COUNT(transaction_id) AS transaction_count
+
+-- Q7: Yearly transaction trend
+SELECT
+    `year`,
+    COUNT(*) AS transaction_count,
+    ROUND(SUM(actual_worth), 2) AS total_sales_value_aed,
+    ROUND(AVG(actual_worth), 2) AS average_sale_price_aed
 FROM transactions
-WHERE year = 2024 AND trans_group_en = 'Sales'
+WHERE trans_group_en = 'Sales'
+GROUP BY `year`
+ORDER BY `year`;
+
+
+-- Q8: Monthly transaction trend
+SELECT
+    DATE_FORMAT(instance_date, '%Y-%m') AS transaction_month,
+    COUNT(*) AS transaction_count,
+    ROUND(SUM(actual_worth), 2) AS monthly_sales_value_aed
+FROM transactions
+WHERE trans_group_en = 'Sales'
 GROUP BY DATE_FORMAT(instance_date, '%Y-%m')
-ORDER BY month ASC;
+ORDER BY transaction_month;
 
--- Q5: Parking Impact on Price
-SELECT has_parking, 
-       AVG(meter_sale_price) AS avg_price_per_sqm, 
-       COUNT(transaction_id) AS transaction_count
+
+-- Q9: Parking availability and average price per sqm
+SELECT
+    has_parking,
+    ROUND(AVG(price_per_sqm), 2) AS avg_price_per_sqm,
+    COUNT(*) AS transaction_count
 FROM transactions
 WHERE trans_group_en = 'Sales'
-GROUP BY has_parking;
+  AND price_per_sqm > 0
+GROUP BY has_parking
+ORDER BY avg_price_per_sqm DESC;
 
 
--- ============================================
--- SECTION 2: AREA & REGIONAL ANALYSIS
--- ============================================
+-- =========================================================
+-- SECTION 3: AREA AND REGIONAL ANALYSIS
+-- =========================================================
 
--- Q6: Top 10 Areas by Total Sales Value (2024)
-SELECT area_name_en, 
-       SUM(actual_worth) AS total_sales_value, 
-       COUNT(transaction_id) AS transaction_count
-FROM transactions
-WHERE trans_group_en = 'Sales' AND year = 2024
-GROUP BY area_name_en
-ORDER BY SUM(actual_worth) DESC
-LIMIT 10;
-
--- Q12: Top Areas by Avg Price/SQM (min 100 transactions)
-SELECT area_name_en, 
-       AVG(meter_sale_price) AS avg_price_per_sqm, 
-       COUNT(transaction_id) AS transaction_count
-FROM transactions
-WHERE trans_group_en = 'Sales' AND year = 2024
-GROUP BY area_name_en
-HAVING COUNT(transaction_id) > 100
-ORDER BY AVG(meter_sale_price) DESC
-LIMIT 10;
-
--- Q13: Metro Proximity Impact
-SELECT 
-    CASE WHEN nearest_metro_en IS NULL THEN 'No Metro' ELSE 'Has Metro' END AS has_metro,
-    AVG(meter_sale_price) AS avg_price_per_sqm, 
-    COUNT(transaction_id) AS transaction_count
-FROM transactions
-WHERE trans_group_en = 'Sales' AND year = 2024
-GROUP BY CASE WHEN nearest_metro_en IS NULL THEN 'No Metro' ELSE 'Has Metro' END;
-
-
--- ============================================
--- SECTION 3: PROPERTY ANALYSIS
--- ============================================
-
--- Q8: Top 5 Property Sub-Types
-SELECT property_sub_type_en, 
-       COUNT(transaction_id) AS transaction_count, 
-       AVG(meter_sale_price) AS avg_price_per_sqm
+-- Q10: Top 10 areas by total sales value
+SELECT
+    area_name_en,
+    ROUND(SUM(actual_worth), 2) AS total_sales_value_aed,
+    COUNT(*) AS transaction_count
 FROM transactions
 WHERE trans_group_en = 'Sales'
+  AND actual_worth > 0
+GROUP BY area_name_en
+ORDER BY total_sales_value_aed DESC
+LIMIT 10;
+
+
+-- Q11: Top 10 areas by average price per sqm
+-- Only areas with at least 100 sales transactions are included
+SELECT
+    area_name_en,
+    ROUND(AVG(price_per_sqm), 2) AS avg_price_per_sqm,
+    COUNT(*) AS transaction_count
+FROM transactions
+WHERE trans_group_en = 'Sales'
+  AND price_per_sqm > 0
+  AND area_name_en IS NOT NULL
+GROUP BY area_name_en
+HAVING COUNT(*) >= 100
+ORDER BY avg_price_per_sqm DESC
+LIMIT 10;
+
+
+-- Q12: Compare transactions by metro information availability
+-- Non-null metro information does not prove actual proximity
+SELECT
+    CASE
+        WHEN nearest_metro_en IS NULL OR TRIM(nearest_metro_en) = ''
+            THEN 'Metro information unavailable'
+        ELSE 'Metro information available'
+    END AS metro_information_status,
+    ROUND(AVG(price_per_sqm), 2) AS avg_price_per_sqm,
+    COUNT(*) AS transaction_count
+FROM transactions
+WHERE trans_group_en = 'Sales'
+  AND price_per_sqm > 0
+GROUP BY metro_information_status;
+
+
+-- =========================================================
+-- SECTION 4: PROPERTY ANALYSIS
+-- =========================================================
+
+-- Q13: Top 5 property sub-types by transaction volume
+SELECT
+    property_sub_type_en,
+    COUNT(*) AS transaction_count,
+    ROUND(AVG(price_per_sqm), 2) AS avg_price_per_sqm
+FROM transactions
+WHERE trans_group_en = 'Sales'
+  AND property_sub_type_en IS NOT NULL
 GROUP BY property_sub_type_en
-ORDER BY COUNT(transaction_id) DESC
+ORDER BY transaction_count DESC
 LIMIT 5;
 
--- Q9: Room Distribution for Flats
-SELECT rooms_en, COUNT(transaction_id) AS transaction_count
+
+-- Q14: Room distribution for flats
+SELECT
+    rooms_en,
+    COUNT(*) AS transaction_count
 FROM transactions
-WHERE trans_group_en = 'Sales' AND property_type_en = 'Flat'
+WHERE trans_group_en = 'Sales'
+  AND property_type_en = 'Flat'
+  AND rooms_en IS NOT NULL
 GROUP BY rooms_en
 ORDER BY transaction_count DESC;
 
--- Q11: Median Sale Price by Property Type (2024)
-WITH ranked AS (
-    SELECT property_type_en, actual_worth,
-           ROW_NUMBER() OVER (PARTITION BY property_type_en ORDER BY actual_worth) AS rn,
-           COUNT(*) OVER (PARTITION BY property_type_en) AS total
+
+-- Q15: Median sale price by property type
+WITH ranked_transactions AS (
+    SELECT
+        property_type_en,
+        actual_worth,
+        ROW_NUMBER() OVER (
+            PARTITION BY property_type_en
+            ORDER BY actual_worth
+        ) AS row_num,
+        COUNT(*) OVER (
+            PARTITION BY property_type_en
+        ) AS total_rows
     FROM transactions
-    WHERE trans_group_en = 'Sales' AND year = 2024
+    WHERE trans_group_en = 'Sales'
+      AND actual_worth > 0
+      AND property_type_en IS NOT NULL
 )
-SELECT property_type_en,
-       AVG(actual_worth) AS median_sale_price,
-       MAX(total) AS transaction_count
-FROM ranked
-WHERE rn IN (FLOOR((total + 1) / 2), CEIL((total + 1) / 2))
+SELECT
+    property_type_en,
+    ROUND(AVG(actual_worth), 2) AS median_sale_price_aed,
+    MAX(total_rows) AS transaction_count
+FROM ranked_transactions
+WHERE row_num IN (
+    FLOOR((total_rows + 1) / 2),
+    CEIL((total_rows + 1) / 2)
+)
 GROUP BY property_type_en
-ORDER BY median_sale_price DESC;
+ORDER BY median_sale_price_aed DESC;
 
--- Q17: Price Bands Distribution
-WITH bands AS (
-    SELECT transaction_id, meter_sale_price,
-           CASE WHEN actual_worth < 500000 THEN 'Budget'
-                WHEN actual_worth BETWEEN 500000 AND 2000000 THEN 'Mid' 
-                WHEN actual_worth BETWEEN 2000000 AND 5000000 THEN 'Premium'
-                ELSE 'Luxury' 
-           END AS price_bands
+
+-- Q16: Distribution of transactions across sale price bands
+WITH price_categories AS (
+    SELECT
+        transaction_id,
+        actual_worth,
+        CASE
+            WHEN actual_worth < 500000 THEN 'Budget: Below AED 500K'
+            WHEN actual_worth < 2000000 THEN 'Mid-range: AED 500K-2M'
+            WHEN actual_worth < 5000000 THEN 'Premium: AED 2M-5M'
+            ELSE 'Luxury: AED 5M+'
+        END AS price_band
     FROM transactions
-    WHERE trans_group_en = 'Sales' AND year = 2024
+    WHERE trans_group_en = 'Sales'
+      AND actual_worth > 0
 )
-SELECT price_bands, 
-       COUNT(transaction_id) AS transaction_count, 
-       AVG(meter_sale_price) AS avg_price_per_sqm
-FROM bands 
-GROUP BY price_bands
-ORDER BY COUNT(transaction_id) DESC;
+SELECT
+    price_band,
+    COUNT(*) AS transaction_count,
+    ROUND(
+        COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (),
+        2
+    ) AS transaction_percentage,
+    ROUND(AVG(actual_worth), 2) AS avg_sale_price_aed
+FROM price_categories
+GROUP BY price_band
+ORDER BY transaction_count DESC;
 
 
--- ============================================
--- SECTION 4: PROJECTS & TIME ANALYSIS
--- ============================================
+-- =========================================================
+-- SECTION 5: PROJECT ANALYSIS
+-- =========================================================
 
--- Q14: Top 10 Projects by Total Sales (2024)
-SELECT project_name_en, 
-       SUM(actual_worth) AS total_sales_value, 
-       COUNT(transaction_id) AS transaction_count
+-- Q17: Top 10 projects by total sales value
+SELECT
+    project_name_en,
+    ROUND(SUM(actual_worth), 2) AS total_sales_value_aed,
+    COUNT(*) AS transaction_count
 FROM transactions
-WHERE trans_group_en = 'Sales' AND year = 2024 AND project_name_en IS NOT NULL
+WHERE trans_group_en = 'Sales'
+  AND actual_worth > 0
+  AND project_name_en IS NOT NULL
+  AND TRIM(project_name_en) <> ''
 GROUP BY project_name_en
-ORDER BY SUM(actual_worth) DESC
+ORDER BY total_sales_value_aed DESC
 LIMIT 10;
 
--- Q15: Month-over-Month Sales Growth (2024)
-WITH monthly AS (
-    SELECT DATE_FORMAT(instance_date, '%Y-%m') AS month, 
-           SUM(actual_worth) AS total_sales_value
+
+-- =========================================================
+-- SECTION 6: TIME SERIES ANALYSIS
+-- =========================================================
+
+-- Q18: Month-over-month sales growth
+WITH monthly_sales AS (
+    SELECT
+        DATE_FORMAT(instance_date, '%Y-%m') AS sales_month,
+        SUM(actual_worth) AS total_sales_value
     FROM transactions
-    WHERE year = 2024 AND trans_group_en = 'Sales'
+    WHERE trans_group_en = 'Sales'
+      AND actual_worth > 0
     GROUP BY DATE_FORMAT(instance_date, '%Y-%m')
-)
-SELECT month, total_sales_value,
-       LAG(total_sales_value) OVER (ORDER BY month ASC) AS prev_month_value,
-       ROUND(
-           (total_sales_value - LAG(total_sales_value) OVER (ORDER BY month ASC)) * 100.0 
-           / LAG(total_sales_value) OVER (ORDER BY month ASC), 2
-       ) AS growth_pct
-FROM monthly
-ORDER BY month ASC;
-
--- Q10: Quarterly Trend (2024)
-SELECT quarter, 
-       COUNT(transaction_id) AS transaction_count, 
-       SUM(actual_worth) AS total_sales_value
-FROM transactions
-WHERE trans_group_en = 'Sales' AND year = 2024
-GROUP BY quarter
-ORDER BY quarter ASC;
-
--- Q20: Running Total of Sales by Month (2024)
-WITH monthly AS (
-    SELECT DATE_FORMAT(instance_date, '%Y-%m') AS month,
-           SUM(actual_worth) AS monthly_sales
-    FROM transactions
-    WHERE trans_group_en = 'Sales' AND year = 2024
-    GROUP BY DATE_FORMAT(instance_date, '%Y-%m')
-)
-SELECT month, monthly_sales,
-       SUM(monthly_sales) OVER (ORDER BY month) AS running_total
-FROM monthly
-ORDER BY month;
-
--- Q7: YoY Sales Comparison (2023 vs 2024)
-SELECT year, 
-       SUM(actual_worth) AS total_sales_value, 
-       COUNT(transaction_id) AS transaction_count
-FROM transactions
-WHERE trans_group_en = 'Sales' AND year IN (2023, 2024)
-GROUP BY year
-ORDER BY year ASC;
-
-
--- ============================================
--- SECTION 5: ADVANCED (WINDOW FUNCTIONS)
--- ============================================
-
--- Q16: Top 3 Properties per Area by Price
-WITH ranked AS (
-    SELECT area_name_en, transaction_id, actual_worth,
-           RANK() OVER (PARTITION BY area_name_en ORDER BY actual_worth DESC) AS price_rank
-    FROM transactions
-    WHERE trans_group_en = 'Sales' AND year = 2024
-)
-SELECT area_name_en, transaction_id, actual_worth, price_rank
-FROM ranked
-WHERE price_rank <= 3
-ORDER BY area_name_en, price_rank;
-
--- Q18: Top 3 Property Types per Area
-WITH agg AS (
-    SELECT area_name_en, property_type_en, COUNT(*) AS transaction_count
-    FROM transactions
-    WHERE trans_group_en = 'Sales' AND year = 2024
-    GROUP BY area_name_en, property_type_en
 ),
-ranked AS (
-    SELECT *,
-           RANK() OVER (PARTITION BY area_name_en ORDER BY transaction_count DESC) AS area_rank
-    FROM agg
+sales_with_previous_month AS (
+    SELECT
+        sales_month,
+        total_sales_value,
+        LAG(total_sales_value) OVER (
+            ORDER BY sales_month
+        ) AS previous_month_sales
+    FROM monthly_sales
 )
-SELECT area_name_en, property_type_en, transaction_count, area_rank
-FROM ranked
-WHERE area_rank <= 3
-ORDER BY area_name_en, area_rank;
+SELECT
+    sales_month,
+    ROUND(total_sales_value, 2) AS current_month_sales,
+    ROUND(previous_month_sales, 2) AS previous_month_sales,
+    ROUND(
+        (total_sales_value - previous_month_sales)
+        * 100.0 / NULLIF(previous_month_sales, 0),
+        2
+    ) AS month_over_month_growth_pct
+FROM sales_with_previous_month
+ORDER BY sales_month;
 
--- Q19: YoY Growth by Property Type
-SELECT property_type_en,
-       SUM(CASE WHEN year = 2023 THEN actual_worth ELSE 0 END) AS sales_2023,
-       SUM(CASE WHEN year = 2024 THEN actual_worth ELSE 0 END) AS sales_2024,
-       ROUND(
-           (SUM(CASE WHEN year = 2024 THEN actual_worth ELSE 0 END) 
-            - SUM(CASE WHEN year = 2023 THEN actual_worth ELSE 0 END)) * 100.0
-           / NULLIF(SUM(CASE WHEN year = 2023 THEN actual_worth ELSE 0 END), 0), 2
-       ) AS growth_pct
+
+-- Q19: Quarterly sales trend
+SELECT
+    `year`,
+    `quarter`,
+    COUNT(*) AS transaction_count,
+    ROUND(SUM(actual_worth), 2) AS total_sales_value_aed
 FROM transactions
-WHERE trans_group_en = 'Sales' AND year IN (2023, 2024)
-GROUP BY property_type_en
-ORDER BY growth_pct DESC;
+WHERE trans_group_en = 'Sales'
+  AND actual_worth > 0
+GROUP BY `year`, `quarter`
+ORDER BY `year`, `quarter`;
 
--- ============================================
--- END OF ANALYSIS QUERIES
--- Total: 20 queries
--- ============================================
+
+-- Q20: Running total of monthly sales value
+WITH monthly_sales AS (
+    SELECT
+        DATE_FORMAT(instance_date, '%Y-%m') AS sales_month,
+        SUM(actual_worth) AS monthly_sales_value
+    FROM transactions
+    WHERE trans_group_en = 'Sales'
+      AND actual_worth > 0
+    GROUP BY DATE_FORMAT(instance_date, '%Y-%m')
+)
+SELECT
+    sales_month,
+    ROUND(monthly_sales_value, 2) AS monthly_sales_value,
+    ROUND(
+        SUM(monthly_sales_value) OVER (
+            ORDER BY sales_month
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ),
+        2
+    ) AS cumulative_sales_value
+FROM monthly_sales
+ORDER BY sales_month;
+
+
+-- =========================================================
+-- END OF DUBAI REAL ESTATE ANALYSIS
+-- 20 analytical queries
+-- =========================================================
