@@ -4,106 +4,160 @@ End-to-end analysis of **1M+ raw Dubai Land Department transactions**, cleaned a
 
 **Headline findings:** properties with parking sell at a **52% higher price per sqm**, **53%** of transactions fall in the AED 500K–2M range, and **72%** of transactions are apartments.
 
-## 📊 Power BI Dashboard
+## Dashboard Preview
 
+### 1. Market Overview
 ![Market Overview](page1_market_overview.png)
 
-A 4-page interactive dashboard built on 286K cleaned transactions:
+### 2. Area Analysis
+![Area Analysis](page2_area_analysis.png)
 
-- **Market Overview**: KPIs, quarterly trends, property type distribution
-- **Area Analysis**: treemap and top areas by price per sqm
-- **Property Analysis**: type, sub-type, room distribution and parking impact
-- **Executive Summary**: key findings and recommendations
+### 3. Property Analysis
+![Property Analysis](page3_property_analysis.png)
 
-📂 [View all dashboard screenshots →](PowerBI/screenshots/)
+### 4. Executive Summary
+![Executive Summary](page4_executive_summary.png)
 
----
+## Project Overview
 
-## 📋 Business Problem
+**Business objective:** Understand Dubai's real estate transaction patterns and identify insights that may help investors, developers and property-market analysts.
 
-Dubai's real estate market generates billions in transactions every year. Investors, developers and analysts need to know:
+Key business questions:
 
-- **Where** the highest-value transactions happen
-- **What** property types dominate the market
-- **How** features such as parking, location and size affect price
-- **When** the market peaks and slows
+- Which areas have the highest transaction volumes and sales values?
+- Which property types have higher average prices per square metre?
+- How does parking availability relate to property prices?
+- Which property sub-types are most frequently transacted?
+- How have sales values changed over time?
+- Which price bands account for the largest share of transactions?
 
-## 🎯 Objectives
+## Dataset
 
-- Clean and prepare 1M+ raw transaction records
-- Analyse pricing patterns across areas, property types and time
-- Build a 4-page executive dashboard with actionable insights
-- Turn the findings into clear business recommendations
+**Source:** Dubai Land Department transactions dataset, available through Kaggle.
 
-## 🛠️ Tools and Technologies
+[Dataset source – Kaggle](https://www.kaggle.com/datasets/alexefimik/dubai-real-estate-transactions-dataset)
 
-| Tool | Purpose |
-| --- | --- |
-| **Python (Pandas)** | Data profiling, cleaning, derived columns |
-| **MySQL** | Data storage and 20 business analysis queries |
-| **Power BI** | Interactive 4-page dashboard |
-| **DAX** | Calculated measures (formatted KPIs, time intelligence) |
-
-## 🗄️ Dataset
-
-**Source:** Dubai Land Department transactions, via Kaggle ([Link](https://www.kaggle.com/datasets/alexefimik/dubai-real-estate-transactions-dataset))
-
-| Metric | Value |
-| --- | --- |
+| Dataset detail | Value |
+|---|---:|
 | Raw records | 1,047,965 |
 | Raw columns | 46 |
 | Cleaned records | 286,303 |
 | Cleaned columns | 34 |
-| Date range | 2020–2023 |
+| Analysis period | 2020–2024 |
 
-## 🧹 Data Cleaning
+## Project Workflow
 
-| Problem | What I did |
-| --- | --- |
-| Mixed Arabic and English duplicate columns | Dropped 12 duplicate Arabic columns |
-| Near-empty columns (96%+ NULL) | Removed 2 columns |
-| Dates stored as text | Converted to datetime |
-| Too much old data for a recent-market analysis | Filtered to 2020–2023 (286K records kept) |
-| No price per sqm or time fields | Created `year`, `month`, `quarter` and `price_per_sqm` |
+### 1. Python – Data Profiling and Cleaning
 
-Notebooks: `01_data_profiling.ipynb` and `02_data_cleaning.ipynb`
+Used Python and Pandas to:
 
-## 🔍 SQL Analysis (20 queries)
+- Inspect the raw dataset structure and data types.
+- Analyse missing values and data quality.
+- Remove duplicate Arabic-language columns.
+- Remove two rental-related columns with more than 96% missing values.
+- Convert transaction dates into datetime format.
+- Filter records to the 2020–2024 period.
+- Create year, month, quarter and price-per-square-metre fields.
+- Export the cleaned dataset for MySQL analysis.
 
-Covers market overview, area analysis, property segmentation, time trends, window functions and median calculations. See `analysis_queries.sql`.
+**Notebooks:**
+- `01_data_profiling.ipynb`
+- `02_data_cleaning.ipynb`
 
-## 📊 Key Insights
+### 2. MySQL – Business Analysis
 
-- **AED 517.87 billion** in total sales across **217K sales transactions** (the 286K cleaned records also include other transaction types)
-- **Units dominate:** 72% of transactions are apartments
-- **Parking premium:** properties with parking sell at **52% higher** price per sqm (AED 16.36K vs 10.72K)
-- **Mid-tier is the largest segment:** 53% of transactions fall in AED 500K–2M
-- **Premium areas lead revenue:** Marsa Dubai, Palm Jumeirah, Burj Khalifa
-- **Al Buteen** has the highest average price per sqm at AED 85K
-- **1 BHK** is the most in-demand room type
+Prepared 20 SQL analysis queries covering:
 
-## 💡 Recommendations
+- Data validation and duplicate checks.
+- Overall market performance.
+- Area and regional comparisons.
+- Property type and room distribution.
+- Median sale price calculations using window functions.
+- Price-band segmentation using CASE.
+- Project-level sales analysis.
+- Monthly and quarterly trends.
+- Month-over-month growth using LAG().
+- Running totals using window functions.
 
-1. **Target mid-tier buyers:** 53% of transactions are AED 500K–2M
-2. **Highlight parking:** properties with parking show a 52% price premium
-3. **Focus on high-value areas:** Marsa Dubai and Palm Jumeirah lead revenue
-4. **Prioritise apartment inventory:** apartments are 72% of transactions
-5. **Build more 1 BHK supply:** it has the highest transaction volume
+**SQL file:** `analysis_queries.sql`
 
-## ⚠️ Limitations
+### 3. Power BI – Dashboard Development
 
-- Results describe recorded transactions from 2020–2023, not current prices.
-- The parking premium is a direct comparison of averages. It is not adjusted for area, size or property type, so part of the gap may come from those factors.
-- The data has sale prices only, so it cannot measure rental yield.
+Created a four-page Power BI dashboard:
 
-## 🤖 AI-Assisted Workflow
+- **Market Overview:** Overall transaction and market performance.
+- **Area Analysis:** Geographical comparisons and area-level pricing.
+- **Property Analysis:** Property types, sub-types, room distribution and parking.
+- **Executive Summary:** Key findings and business recommendations.
 
-I used ChatGPT and Claude to debug SQL window functions, brainstorm business implications and review DAX measures. I checked every suggestion against the data and business logic, and corrected 8+ logic errors.
+## Key Analytical Areas
 
-## 👤 Author
+The project investigates:
 
-**Yusuf Baig**, Data Analyst | SQL · Power BI · Python | Open to roles in Dubai, UAE
+- Transaction volume and total sales value.
+- Average sale price and average price per square metre.
+- Property-type performance.
+- Area-level transaction patterns.
+- Parking availability and price differences.
+- Room-type transaction distribution.
+- Monthly and quarterly sales trends.
+- Sales growth and cumulative sales value.
 
-- LinkedIn: [linkedin.com/in/yusuf-baig-783906210](https://www.linkedin.com/in/yusuf-baig-783906210/)
+**Important:** Numerical findings and dashboard KPIs should be reconciled with the final cleaned dataset and revised SQL outputs before being treated as final results.
+
+## Business Recommendations
+
+Based on the descriptive analysis, potential areas for further investigation include:
+
+1. **Mid-market segment:** Examine the AED 500K–2M price band to understand its share of transaction activity.
+2. **Property features:** Investigate the relationship between parking availability and price per square metre.
+3. **Location strategy:** Compare high-volume and high-value areas separately.
+4. **Property mix:** Review apartment and room-type transaction patterns.
+5. **Market trends:** Monitor monthly and quarterly changes in transaction values.
+
+## Tools and Technologies
+
+| Technology | Purpose |
+|---|---|
+| Python | Data profiling and cleaning |
+| Pandas | Data manipulation |
+| MySQL | Data analysis and business queries |
+| SQL | CTEs, JOINs, aggregations and window functions |
+| Power BI | Interactive dashboard |
+| DAX | Dashboard calculations and measures |
+| Generative AI | Coding assistance, debugging and documentation |
+
+## Limitations
+
+- The analysis covers historical transactions from 2020–2024 and does not represent current property prices.
+- The parking comparison is descriptive; it does not isolate the effect of parking from property size, location or type.
+- Metro information availability does not establish actual distance or travel time to a metro station.
+- Transaction volume is not the same as buyer demand or property inventory.
+- The dataset contains sale-related and other transaction categories; sales analysis filters to `trans_group_en = 'Sales'`.
+- Missing values in some property and location fields may affect individual comparisons.
+
+## AI-Assisted Development
+
+Generative AI tools, including ChatGPT and Claude, were used to support SQL development, Python troubleshooting, analytical explanations and project documentation.
+
+AI-generated suggestions were reviewed and refined during the project workflow. The project is intended to demonstrate the ability to understand analytical questions, inspect data, review query logic and interpret business results—not simply generate code.
+
+## Repository Structure
+
+- `01_data_profiling.ipynb` – Initial dataset inspection.
+- `02_data_cleaning.ipynb` – Data cleaning and preparation.
+- `analysis_queries.sql` – MySQL business analysis.
+- `page1_market_overview.png` – Dashboard screenshot.
+- `page2_area_analysis.png` – Dashboard screenshot.
+- `page3_property_analysis.png` – Dashboard screenshot.
+- `page4_executive_summary.png` – Dashboard screenshot.
+
+## Author
+
+**Yusuf Baig**  
+Aspiring Data Analyst | Python | SQL | Excel | Power BI
+
+- LinkedIn: [Yusuf Baig](https://www.linkedin.com/in/yusuf-baig-783906210/)
 - GitHub: [@Yusufbaig2001](https://github.com/Yusufbaig2001)
-- Email: yusufbaig2001@gmail.com
+
+Open to entry-level Data Analyst opportunities in Dubai, UAE.
