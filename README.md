@@ -155,7 +155,7 @@ AI-generated suggestions were reviewed and refined during the project workflow. 
 ## Author
 
 **Yusuf Baig**  
-Aspiring Data Analyst | Python | SQL | Excel | Power BI
+Data Analyst | Python | SQL | Excel | Power BI
 
 - LinkedIn: [Yusuf Baig](https://www.linkedin.com/in/yusuf-baig-783906210/)
 - GitHub: [@Yusufbaig2001](https://github.com/Yusufbaig2001)
